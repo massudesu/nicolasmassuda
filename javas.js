@@ -1,76 +1,67 @@
+// LÓGICA DA CORTINA 
+const cortina = document.getElementById('cortina');
 
-  // LÓGICA DA CORTINA 
-  const curtain = document.getElementById('curtain');
-  const hideCurtain = () => {
-    curtain.classList.add('hidden');
+const esconderCortina = () => {
+  cortina.classList.add('escondida');
+  // Remove do DOM após a transição para não atrapalhar cliques
+  setTimeout(() => cortina.remove(), 700);
+};
 
-    setTimeout(() => curtain.remove(), 700);
-  };
-  curtain.addEventListener('click', hideCurtain);
-  window.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' || e.key === ' ') hideCurtain();
-  });
+cortina.addEventListener('click', esconderCortina);
 
- 
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' || e.key === ' ') esconderCortina();
+});
 
-  const ease = 0.15;
+// LÓGICA DO RASTRO(Corações)
+let alvoX = 0;
+let alvoY = 0;
+let atualX = 0;
+let atualY = 0;
+const suavizacao = 0.15;
+const mostrarRastro = true;
+let ultimoTempoRastro = 0;
 
+window.addEventListener('mousemove', (e) => {
+  alvoX = e.clientX;
+  alvoY = e.clientY;
+}, { passive: true });
 
-  const showTrail = true;
-  let lastTrailTime = 0;
+window.addEventListener('touchmove', (e) => {
+  const toque = e.touches[0];
+  alvoX = toque.clientX;
+  alvoY = toque.clientY;
+}, { passive: true });
 
+function animar() {
+  // movimento 
+  atualX += (alvoX - atualX) * suavizacao;
+  atualY += (alvoY - atualY) * suavizacao;
 
-  window.addEventListener('mousemove', (e) => {
-    targetX = e.clientX;
-    targetY = e.clientY;
-  }, { passive: true });
-
-  window.addEventListener('touchmove', (e) => {
-    const t = e.touches[0];
-    targetX = t.clientX;
-    targetY = t.clientY;
-  }, { passive: true });
-
-  function animate() {
-
-    catX += (targetX - catX) * ease;
-    catY += (targetY - catY) * ease;
-
+  const agora = performance.now();
   
-    const angle = Math.atan2(targetY - catY, targetX - catX) * 180 / Math.PI;
-
-    cat.style.transform = translate($,{catX},px, $,{catY},px); rotate($,{angle},deg);
-
-
-    const now = performance.now();
-    if (showTrail && now - lastTrailTime > 90 && (Math.hypot(targetX - catX, targetY - catY) > 8)) {
-      lastTrailTime = now;
-      const trail = document.createElement('div');
-      trail.className = 'trail';
-      trail.textContent = '💖';
-      trail.style.left = catX + 'px';
-      trail.style.top = catY + 'px';
-      document.body.appendChild(trail);
-      setTimeout(() => trail.remove(), 650);
-    }
-
-    requestAnimationFrame(animate);
+  // Cria o rastro de corações
+  if (mostrarRastro && agora - ultimoTempoRastro > 90 && (Math.hypot(alvoX - atualX, alvoY - atualY) > 8)) {
+    ultimoTempoRastro = agora;
+    const rastro = document.createElement('div');
+    rastro.className = 'rastro';
+    rastro.textContent = '💖';
+    rastro.style.left = atualX + 'px';
+    rastro.style.top = atualY + 'px';
+    document.body.appendChild(rastro);
+    
+    setTimeout(() => rastro.remove(), 650);
   }
-  requestAnimationFrame(animate);
 
-  window.addEventListener('resize', () => {
-    catX = window.innerWidth / 2;
-    catY = window.innerHeight / 2;
-    targetX = catX;
-    targetY = catY;
-  });
+  requestAnimationFrame(animar);
+}
 
+requestAnimationFrame(animar);
 
-  curtain.addEventListener('transitionend', () => {
-  
-  });
-  document.querySelectorAll('.imagens').forEach(image => {
-    image.addEventListener('click', () => {
-      image.style.backgroundColor = image.style.backgroundColor === 'rgb(255, 99, 71)' ? '#000000ff' : 'rgb(255, 99, 71)';
-    });
-  });
+// Resetar posição ao redimensionar tela
+window.addEventListener('resize', () => {
+  atualX = window.innerWidth / 2;
+  atualY = window.innerHeight / 2;
+  alvoX = atualX;
+  alvoY = atualY;
+});
