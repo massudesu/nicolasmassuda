@@ -1,1 +1,1 @@
- https://massudesu.github.io/nicolasmassuda.github.io/
+ https://massudesu.github.io/nicolasmassuda/
